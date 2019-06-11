@@ -1,0 +1,2 @@
+class ConseilException(Exception):
+    pass
