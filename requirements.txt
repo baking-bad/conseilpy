@@ -1,0 +1,4 @@
+loguru==0.2.5
+requests==2.18.4
+cachetools==3.0.0
+typing==3.6.6
