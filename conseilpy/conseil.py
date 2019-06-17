@@ -30,8 +30,8 @@ class AggMethod(Enum):
 class Conseil:
     __url__ = "https://conseil-dev.cryptonomic-infra.tech"
 
-    def __init__(self, api_key: str, api_version=None,  timeout=None, platform=None, network=None):
-        self._api = ConseilApi(api_key, api_version, timeout)
+    def __init__(self, api: ConseilApi, platform=None, network=None):
+        self._api = api
         self._default_platform = platform
         self._default_network = network
         self._init_entities()
@@ -58,7 +58,7 @@ class Conseil:
         return self._api.get('metadata/platforms')
     
     @cached(cache=TTLCache(maxsize=4096, ttl=600))
-    def networks(self, platform_name: str):
+    def networks(self, platform_name=None):
         if platform_name is None:
             platform_name = self._default_platform
         return self._api.get(f'metadata/{platform_name}/networks')
