@@ -140,11 +140,13 @@ class Conseil:
         return self
 
     def agg(self, field: Attribute, method: AggMethod):
-        self._temp_query['aggregation'] = {
+        if 'aggregation' not in self._temp_query:
+            self._temp_query['aggregation'] = list()
+        
+        self._temp_query['aggregation'].append({
             'field': field.name,
-            'function': method.value,
-            'predicate': {}
-        }
+            'function': method.value
+        })
         return self
 
     def order_by(self, field: Attribute, direction="asc"):

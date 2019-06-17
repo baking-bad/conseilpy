@@ -1,6 +1,6 @@
 from loguru import logger
 
-from conseilpy import Conseil, AggMethod
+from conseilpy import Conseil, AggMethod, ConseilApi
 
 
 if __name__ == '__main__':
@@ -8,11 +8,12 @@ if __name__ == '__main__':
     with open('api_key', 'r') as f:
         key = f.read()
 
-    api = Conseil(key, platform="tezos", network="alphanet")
+    api = ConseilApi(key)
+    c = Conseil(api, platform="tezos", network="alphanet")
 
     # /v2/data/tezos/<network>/accounts
 
-    api.query(api.Account). \
+    c.query(api.Account). \
         select([api.Account.Address]). \
         startsWith(api.Account.Address, "KT1"). \
         isnull(api.Account.Script, inverse=True). \
