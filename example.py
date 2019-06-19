@@ -13,9 +13,11 @@ if __name__ == '__main__':
 
     # /v2/data/tezos/<network>/accounts
 
-    c.query(api.Account). \
-        select([api.Account.Address]). \
-        startsWith(api.Account.Address, "KT1"). \
-        isnull(api.Account.Script, inverse=True). \
+    data = c.query(c.Account). \
+        select([c.Account.Address]). \
+        startsWith(c.Account.Address, "KT1"). \
+        isnull(c.Account.Script, inverse=True). \
         limit(10). \
         get()
+
+    logger.debug(data)
