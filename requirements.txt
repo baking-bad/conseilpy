@@ -1,0 +1,6 @@
+loguru==0.2.5
+setuptools==39.0.1
+cachetools==3.0.0
+requests==2.18.4
+parameterized==0.7.0
+typing==3.6.6
