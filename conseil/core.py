@@ -84,7 +84,7 @@ class Attribute(MetadataQuery):
         return self._predicate('like', value)
 
     def notlike(self, value):
-        return self._predicate('like', value, inverse=False)
+        return self._predicate('like', value, inverse=True)
 
     def __lt__(self, other):
         return self._predicate('lt', other)
@@ -109,12 +109,6 @@ class Attribute(MetadataQuery):
 
     def endswith(self, value):
         return self._predicate('endsWith', value)
-
-    def before(self, value):
-        return self._predicate('before', value)
-
-    def after(self, value):
-        return self._predicate('after', value)
 
     def asc(self):
         return self._sort_order('asc')
