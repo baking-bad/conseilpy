@@ -1,6 +1,7 @@
+from decimal import Decimal
+
 from conseil.query import MetadataQuery, DataQuery
 from conseil.api import ConseilException
-from decimal import Decimal
 
 
 def not_(predicate: dict):
@@ -54,16 +55,16 @@ class Attribute(MetadataQuery):
 
     def in_(self, *args):
         if len(args) == 0:
-            return self._is(None)
+            return self.is_(None)
         if len(args) == 1:
-            return self._is(args[0])
+            return self.is_(args[0])
         return self._predicate('in', *args)
 
     def notin_(self, *args):
         if len(args) == 0:
-            return self._isnot(None)
+            return self.isnot(None)
         if len(args) == 1:
-            return self._isnot(args[0])
+            return self.isnot(args[0])
         return self._predicate('in', *args, inverse=True)
 
     def is_(self, value):
@@ -152,6 +153,8 @@ class Entity(MetadataQuery):
             attributes = {x['attribute_id']: x for x in args}
             if any(map(lambda x: x['entity_id'] != self['entity_id'], args)):
                 raise ConseilException('Entity mismatch')
+        elif len(args) == 0:
+            attributes = dict()
         else:
             raise ConseilException('List of attributes (single entity) or an entity is allowed')
         kwargs = self._extend(attributes=attributes)
