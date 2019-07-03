@@ -10,7 +10,7 @@ Python toolkit for [Conseil](https://cryptonomic.github.io/Conseil) blockchain i
 Python 3.6+ required
 
 ```bash
-$ pip install conseilpy
+$ pip install conseil
 ```
 
 ## Usage
@@ -58,7 +58,7 @@ transaction
 ```
 
 Autocompletion `Shift + Tab` and docstrings are available in Jupyter:
-```json
+```python
 >>> conseil
 Path
 metadata/platforms
@@ -205,7 +205,7 @@ query = Account.query() \
 
 Then you can simply:
 
-```json
+```python
 >>> query
 Path
 data/tezos/alphanet/accounts

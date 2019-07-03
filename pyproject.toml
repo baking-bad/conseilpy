@@ -1,12 +1,11 @@
 [tool.poetry]
 name = "conseil"
-version = "0.1"
+version = "0.1.0"
 description = "Python toolkit for Conseil blockchain indexer"
-authors = ["aopoltorzhicky <aopoltorzhicky@gmail.com>", "m-kus <44951260+m-kus@users.noreply.github.com>"]
 license = "MIT"
+authors = ["Michael Zaikin <mz@baking-bad.org>", "aopoltorzhicky <aopoltorzhicky@gmail.com>"]
 readme = "README.md"
 repository = "https://github.com/baking-bad/conseilpy"
-website = "https://cryptonomic.github.io/Conseil"
 keywords = ["tezos", "blockchain"]
 classifiers = [
     "Programming Language :: Python :: 3",
