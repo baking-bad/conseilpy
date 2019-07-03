@@ -149,13 +149,57 @@ class PredicatesTest(ConseilCase):
         }, c.source.isnot(None))
 
     def test_startswith(self):
-        pass
+        c = self.conseil.tezos.alphanet.operations
+
+        self.assertDictEqual({
+            'field': 'source',
+            'operation': 'startsWith',
+            'set': ['KT1'],
+            'inverse': False
+        }, c.source.startswith('KT1'))
+
+        self.assertDictEqual({
+            'field': 'source',
+            'operation': 'startsWith',
+            'set': ['KT1'],
+            'inverse': True
+        }, not_(c.source.startswith('KT1')))
 
     def test_endswith(self):
-        pass
+        c = self.conseil.tezos.alphanet.operations
+
+        self.assertDictEqual({
+            'field': 'source',
+            'operation': 'endsWith',
+            'set': ['00'],
+            'inverse': False
+        }, c.source.endswith('00'))
+
+        self.assertDictEqual({
+            'field': 'source',
+            'operation': 'endsWith',
+            'set': ['00'],
+            'inverse': True
+        }, not_(c.source.endswith('00')))
 
     def test_filter(self):
-        pass
+        c = self.conseil.tezos.alphanet.operations
+
+        query = c.query(c.destination, c.kind) \
+            .filter(c.destination.startswith('KT1'),
+                    c.kind == c.kind.transaction)
+
+        self.assertEqual(2, len(query.payload()['predicates']))
 
     def test_filter_by(self):
-        pass
+        c = self.conseil.tezos.alphanet.accounts
+
+        query = c.query(c.balance) \
+            .filter_by(account_id='KT1abcd')
+
+        self.assertDictEqual({
+            'field': 'account_id',
+            'operation': 'eq',
+            'set': ['KT1abcd'],
+            'inverse': False
+        }, query.payload()['predicates'][0])

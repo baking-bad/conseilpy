@@ -1,4 +1,3 @@
-from conseil.core import *
 from tests.mock_api import ConseilCase
 
 

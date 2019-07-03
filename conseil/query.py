@@ -60,7 +60,7 @@ class MetadataQuery(Query):
     __child_key__ = None
     __child_class__ = None
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=None)
     def _request(self):
         try:
             if self.__query_path__:
@@ -91,7 +91,7 @@ class MetadataQuery(Query):
     def __dir__(self):
         return list(super(MetadataQuery, self).__dir__()) + list(self._attr_names)
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=None)
     def __getattr__(self, item):
         if self.__child_class__:
             kwargs = {
@@ -161,7 +161,8 @@ class DataQuery(Query):
             {
                 'field': k,
                 'operation': 'eq',
-                'set': [v]
+                'set': [v],
+                'inverse': False
             }
             for k, v in kwargs.items()
         ]
