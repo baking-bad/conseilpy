@@ -211,12 +211,12 @@ Path
 data/tezos/alphanet/accounts
 
 Query
-{'aggregation': [],
- 'fields': [],
- 'limit': 1,
- 'orderBy': [{'direction': 'desc', 'field': 'balance'}],
- 'output': 'json',
- 'predicates': []}
+{"aggregation": [],
+ "fields": [],
+ "limit": 1,
+ "orderBy": [{"direction": "desc", "field": "balance"}],
+ "output": "json",
+ "predicates": []}
 ```
 
 ### Execution
