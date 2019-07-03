@@ -1,46 +1,26 @@
-from conseilpy.conseil import ConseilException
+from requests import Response
+from unittest import TestCase
 from unittest.mock import MagicMock
 
-__all__ = ['MockApi']
+from conseil.core import Client
 
-responses = {
-    'metadata/platforms': [{
-        "name": "tezos",
-        "displayName": "Tezos"
-    }],
-    'metadata/tezos/networks': [{
-        "name": "alphanet",
-        "displayName": "Alphanet",
-        "platform": "tezos",
-        "network": "alphanet"
-    }],
-    'metadata/tezos/alphanet/entities': [{
-        "name": "accounts",
-        "displayName": "Accounts",
-        "count": 19587
-    }],
-    'metadata/tezos/alphanet/accounts/attributes': [{
-        "name": "account_id",
-        "displayName": "Account id",
-        "dataType": "String",
-        "cardinality": 19587,
-        "keyType": "UniqueKey",
-        "entity": "accounts"
-    }, {
-        "name": "block_id",
-        "displayName": "Block id",
-        "dataType": "String",
-        "cardinality": 4614,
-        "keyType": "NonKey",
-        "entity": "accounts"
-    }]
-}
 
-class MockApi(MagicMock):
-    def get(self, uri: str):
-        return responses.get(uri)
+class MockResponse(Response):
 
-    def post(self, uri, data):
-        if uri is None:
-            raise ConseilException('test')
-        return [1]
+    def json(self):
+        return []
+
+    def text(self):
+        return ''
+
+
+class ConseilCase(TestCase):
+
+    def setUp(self):
+        self.api = MagicMock()
+        self.api.get.return_value = MockResponse()
+        self.api.post.return_value = MockResponse()
+        self.conseil = Client(self.api)
+
+    def assertLastGetPathEquals(self, path):
+        self.assertEqual(path, self.api.get.call_args_list[-1][0][0])
