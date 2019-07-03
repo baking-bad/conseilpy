@@ -6,10 +6,25 @@ from pprint import pformat
 from conseil.api import ConseilApi, ConseilException
 
 
-def get_attr_docstring(class_type, attr_name):
-    attr = getattr(class_type, attr_name, None)
-    if attr and attr.__doc__:
-        return re.sub(r' {3,}', '', attr.__doc__)
+def get_class_docstring(class_type):
+    docstring = ''
+    names = filter(lambda x: not x.startswith('_'), dir(class_type))
+
+    for name in names:
+        attr = getattr(class_type, name, None)
+        if type(attr) == property:
+            title = f'.{name}'
+        else:
+            title = f'.{name}()'
+
+        if attr.__doc__:
+            doc = re.sub(r' {3,}', '', attr.__doc__)
+        else:
+            doc = ''
+
+        docstring += f'{title}{doc}\n'
+
+    return docstring
 
 
 class Query:
@@ -40,20 +55,8 @@ class Query:
         return self._kwargs.get(item)
 
     def __repr__(self):
-        docstring = ''
         if self.__query_path__:
-            docstring += f'Path\n{self._query_path}\n\n'
-
-        attrs = filter(lambda x: not x.startswith('_'), dir(self.__class__))
-        for attr in attrs:
-            if type(getattr(self.__class__, attr)) == property:
-                name = f'.{attr}'
-            else:
-                name = f'.{attr}()'
-            info = get_attr_docstring(self.__class__, attr) or ''
-            docstring += f'{name}{info}\n'
-
-        return docstring
+            return f'Path\n{self._query_path}\n\n'
 
 
 class MetadataQuery(Query):
@@ -78,11 +81,12 @@ class MetadataQuery(Query):
     def __repr__(self):
         docstring = super(MetadataQuery, self).__repr__()
 
-        attrs = '\n'.join(map(lambda x: f'.{x}', self._attr_names))
-        if attrs:
+        attr_names = '\n'.join(map(lambda x: f'.{x}', self._attr_names))
+        if attr_names:
             title = basename(self._query_path).capitalize()
-            docstring += f'{title}\n{attrs}\n'
+            docstring += f'{title}\n{attr_names}\n'
 
+        docstring += get_class_docstring(self.__class__)
         return docstring
 
     def __call__(self):
@@ -104,11 +108,6 @@ class MetadataQuery(Query):
 
 class DataQuery(Query):
     __query_path__ = 'data/{platform_id}/{network_id}/{entity_id}'
-
-    def __repr__(self):
-        docstring = super(DataQuery, self).__repr__()
-        docstring += f'Query\n{pformat(self.payload())}\n\n'
-        return docstring
 
     def payload(self):
         """
@@ -142,6 +141,11 @@ class DataQuery(Query):
             'limit': self['limit'],
             'output': self['output'] or 'json'
         }
+
+    def __repr__(self):
+        docstring = super(DataQuery, self).__repr__()
+        docstring += f'Query\n{pformat(self.payload())}\n\n'
+        return docstring
 
     def filter(self, *args):
         """

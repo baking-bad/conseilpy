@@ -15,6 +15,10 @@ $ pip install conseilpy
 
 ## Usage
 
+ConseilPy is a lot like Sqlalchemy, so if you're familiar with it, you can easily cook queries.
+
+![It's time to cook](https://memegenerator.net/img/instances/48258954.jpg)
+
 ### Quickstart
 
 ```python
@@ -50,23 +54,19 @@ So you can simply access any node by name:
 ```python
 >>> from conseil import conseil
 >>> print(conseil.tezos.alphanet.operations.kind.transaction)
-'transaction'
+transaction
 ```
 
-Autocompletion and docstrings are available in Jupyter:
-```python
->>> from conseil import conseil
+Autocompletion `Shift + Tab` and docstrings are available in Jupyter:
+```json
 >>> conseil
-"""
 Path
 metadata/platforms
 
 Platforms
 .tezos
-"""
 
 >>> conseil.tezos.alphanet
-"""
 Path
 metadata/tezos/alphanet/entities
 
@@ -86,21 +86,174 @@ Entities
 .operations
 .proposals
 .rolls
-"""
 ```
 
 Alternatively you can check full [SQL schema](https://github.com/Cryptonomic/Conseil/blob/master/doc/conseil.sql)
 
 ### Selecting fields
+Conseil doesn't support joins at the moment so you can request attributes for a single entity only. 
 
+```python
+from conseil import conseil
+
+c = conseil.tezos.alphanet
+
+# select all fields
+c.query(c.accounts)
+c.accounts.query()
+
+# select specific fields
+c.query(c.accounts.balance, c.accounts.account_id)
+c.accounts.query(c.accounts.balance, c.accounts.account_id)
+
+# select single field
+c.accounts.balance.query()
+```
 
 ### Filtering results
+Conseil receives a conjunction of predicates, which can be inverted by one, but not together.
+Predicate syntax is similar to Sqlalchemy, but has less operations.
 
+```python
+from conseil import conseil
+from conseil.core import not_
+
+Account = conseil.tezos.alphanet.accounts
+Account.query() \
+    .filter(not_(Account.account_id.startswith('tz')),
+            Account.script.is_(None),
+            Account.balance > 0)
+```
+
+Here is a full list of supported operations:
+
+| Conseil operation | Filter             | Inversed                |
+| ----------------- | ------------------ | ----------------------- |
+| in                | `x.in_(a, b, ...)` | `x.notin_(a, b, ...)`   |
+| between           | `x.between(a, b)`  | `not_(x.between(a, b))` |
+| like              | `x.like(a)`        | `x.notlike(a)`          |
+| lt                | `x < a`            | `x >= a`                |
+| gt                | `x > a`            | `x <= a`                |
+| eq                | `x == a`           | `x != a`                |
+| startsWith        | `x.startswith(a)`  | `not_(x.startsWith(a))` |
+| endsWith          | `x.endswith(a)`    | `not_(x.endswith(a))`   |
+| isnull            | `x.is_(None)`      | `x.isnot(None)`         |
+
+You can also use `filter_by` for simple queries:
+
+```python
+from conseil import conseil
+
+conseil.tezos.alphanet.accounts.query().filter_by(account_id='tzkt')
+```
 
 ### Data aggregation
 
+This is an important concept to understand. In Conseil you specify which columns will be aggregated and the rest of them are used in `GROUP BY` clause. Here is an example:
 
-### Sorting results
+```python
+from conseil import conseil
 
+Block = conseil.tezos.alphanet.blocks
+Block.query(Block.baker, Block.level.count())  
+# will be compiled to SELECT baker, COUNT(level) FROM blocks GROUP BY baker
+```
 
-### Query execution
+Additionally, you can specify `HAVING` predicates if you want to filter results by aggregated column:
+
+```python
+from conseil import conseil
+
+Block = conseil.tezos.alphanet.blocks
+Block.query(Block.baker, Block.level.count()) \
+	.having(Block.level > 1)  # or Block.level.count(), no difference
+```
+
+Here is the list of supported aggregation functions:
+
+* `count`
+* `sum`
+* `avg`
+* `min`
+* `max`
+
+### Sorting and limiting results
+
+This is similar to Sqlalchemy as well, you can specify one or multiple sort columns with optional descending modifier.
+
+```python
+from conseil import conseil
+
+Account = conseil.tezos.alphanet.accounts
+Account.query() \
+	.order_by(Account.balance.desc(), Account.account_id) \
+	.limit(20)
+```
+
+### Query preview
+
+So you have cooked a simple query and want to see the resulting Conseil request body.
+
+```python
+from conseil import conseil
+
+Account = conseil.tezos.alphanet.accounts
+query = Account.query() \
+	.order_by(Account.balance.desc()) \
+    .limit(1)
+```
+
+Then you can simply:
+
+```json
+>>> query
+Path
+data/tezos/alphanet/accounts
+
+Query
+{'aggregation': [],
+ 'fields': [],
+ 'limit': 1,
+ 'orderBy': [{'direction': 'desc', 'field': 'balance'}],
+ 'output': 'json',
+ 'predicates': []}
+```
+
+### Execution
+
+It's time to submit our query and get some data.
+
+```python
+from conseil import conseil
+
+Account = conseil.tezos.alphanet.accounts
+```
+
+#### Return multiple rows
+
+```python
+query = Account.query()
+
+query.all()  # will return List[dict] (default output type)
+query.all(output='csv')  # will return string (csv)
+```
+
+#### Return single row
+
+```python
+query = Account.query() \
+	.filter_by(account_id='tzkt')
+
+query.one()  # will fail if there is no account with such id or there are many
+query.one_or_none()  # will handle the exception and return None
+```
+
+#### Return scalar
+
+```python
+query = Account.balance.query() \
+	.order_by(Account.balance.desc()) \
+    .limit(1)
+
+query.scalar()  # will return single numeric value
+```
