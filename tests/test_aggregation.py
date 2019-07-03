@@ -1,7 +1,7 @@
 from tests.mock_api import ConseilCase
 
 
-class QueryTest(ConseilCase):
+class AggregationTest(ConseilCase):
 
     def test_aggregated_columns(self):
         c = self.conseil.tezos.alphanet

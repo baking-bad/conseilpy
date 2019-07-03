@@ -10,23 +10,16 @@ class ConseilApi:
     def __init__(self,
                  api_key='bakingbad',
                  api_host='https://conseil-dev.cryptonomic-infra.tech',
-                 api_version=2,
-                 timeout=15):
+                 api_version=2):
         self._api_key = api_key
         self._api_host = api_host
         self._api_version = api_version
-        self._timeout = timeout
 
-    def _request(self, method, path, params=None, json=None):
-        if isinstance(params, dict):
-            params = {k: v for k, v in params.items() if v is not None}
-
+    def _request(self, method, path, json=None):
         response = requests.request(
             method=method,
             url=f'{self._api_host}/v{self._api_version}/{path}',
-            params=params,
             headers={'apiKey': self._api_key},
-            timeout=self._timeout,
             json=json
         )
         if response.status_code != 200:
@@ -34,16 +27,8 @@ class ConseilApi:
 
         return response
 
-    def get(self, path, **kwargs):
-        return self._request(
-            method='GET',
-            path=path,
-            params=kwargs
-        )
+    def get(self, path):
+        return self._request(method='GET', path=path)
 
     def post(self, path, json):
-        return self._request(
-            method='POST',
-            path=path,
-            json=json
-        )
+        return self._request(method='POST', path=path, json=json)

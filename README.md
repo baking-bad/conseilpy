@@ -1,50 +1,102 @@
 # ConseilPy
+[![Build Status](https://travis-ci.org/baking-bad/conseilpy.svg?branch=master)](https://travis-ci.org/baking-bad/conseilpy)
+[![Made With](https://img.shields.io/badge/made%20with-python-blue.svg?)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This is library for blockchain indexer Conseil in Python 3. 
+Python toolkit for [Conseil](https://cryptonomic.github.io/Conseil) blockchain indexer
 
 ## Installation
 
-Requirements: Python 3.6.7 or above
-
-To install it execute command 
+Python 3.6+ required
 
 ```bash
-pip3 install conseilpy
+$ pip install conseilpy
 ```
 
 ## Usage
 
-First of all, you need to create `Conseil` object. To do it you need `ConseilApi` object. For example:
+### Quickstart
 
 ```python
-API_KEY = 'very_secret_key'
+from conseil import conseil
 
-api = ConseilApi(API_KEY)
-c = Conseil(api)
-
-# or
-
-c = Conseil(ConseilApi(API_KEY))
-
+Account = conseil.tezos.alphanet.accounts
+Account.query(Account.acccount_id, Account.balance) \
+    .filter(Account.script.is_(None), 
+            Account.account_id.startswith('KT1')) \
+    .order_by(Account.balance.desc()) \
+    .limit(5) \
+    .all()
 ```
 
-All entities and attributes and its description will download dynamically from Conseil API. More info about Conseil data you can find in [docs](https://cryptonomic.github.io/Conseil/#/?id=entities). For example, to get list of availiable entities in Jupyter notebook just press `Tab` after  `c.` and to read docs press `Ctrl+Tab`.
-
-All queries builds by chaining. Data returns in JSON-format. For example, request from Conseil [docs](https://cryptonomic.github.io/Conseil/#/?id=all-originated-accounts-which-are-smart-contracts) which returns all originated accounts which are smart contracts:
-
+### Client initialization
+If using a default conseil client is not an option you can instantiate it yourself:
 ```python
-data = c.query(c.Account). \
-    select([c.Account.Address]). \
-    startsWith(c.Account.Address, "KT1"). \
-    isnull(c.Account.Script, inverse=True). \
-    limit(10). \
-    get()
+from conseil.api import ConseilApi
+from conseil.core import Client
+
+conseil = Client(ConseilApi(
+    api_key='<API_KEY>',
+    api_host='<API_HOST>',
+    api_version=2
+))
 ```
 
-`query` - set requested object
+### Exploring database schema
+Conseil metadata has the following tree structure: 
+platform / network / entity / attribute / value
 
-`select` - ser requests fields
+So you can simply access any node by name:
+```python
+>>> from conseil import conseil
+>>> print(conseil.tezos.alphanet.operations.kind.transaction)
+'transaction'
+```
 
-`startsWith`, `isnull`, `limit` - some filters
+Autocompletion and docstrings are available in Jupyter:
+```python
+>>> from conseil import conseil
+>>> conseil
+Path
+metadata/platforms
 
-`get` - return result of query
+Platforms
+.tezos
+
+>>> conseil.tezos.alphanet
+Path
+metadata/tezos/alphanet/entities
+
+.query()
+Request an entity or specific fields
+:param args: Array of attributes (of a common entity) or a single entity
+:return: DataQuery
+
+Entities
+.accounts
+.balance_updates
+.ballots
+.blocks
+.delegates
+.fees
+.operation_groups
+.operations
+.proposals
+.rolls
+```
+
+[View](https://github.com/Cryptonomic/Conseil/blob/master/doc/conseil.sql) database schema
+
+### Selecting fields
+
+
+### Filtering results
+
+
+### Data aggregation
+
+
+### Sorting results
+
+
+### Query execution
