@@ -43,7 +43,7 @@ conseil = Client(ConseilApi(
 ```
 
 ### Exploring database schema
-Conseil metadata has the following tree structure: 
+Conseil metadata has the following tree structure:  
 platform / network / entity / attribute / value
 
 So you can simply access any node by name:
@@ -57,13 +57,16 @@ Autocompletion and docstrings are available in Jupyter:
 ```python
 >>> from conseil import conseil
 >>> conseil
+"""
 Path
 metadata/platforms
 
 Platforms
 .tezos
+"""
 
 >>> conseil.tezos.alphanet
+"""
 Path
 metadata/tezos/alphanet/entities
 
@@ -83,9 +86,10 @@ Entities
 .operations
 .proposals
 .rolls
+"""
 ```
 
-[View](https://github.com/Cryptonomic/Conseil/blob/master/doc/conseil.sql) database schema
+Alternatively you can check full [SQL schema](https://github.com/Cryptonomic/Conseil/blob/master/doc/conseil.sql)
 
 ### Selecting fields
 
