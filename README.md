@@ -70,11 +70,6 @@ Platforms
 Path
 metadata/tezos/alphanet/entities
 
-.query()
-Request an entity or specific fields
-:param args: Array of attributes (of a common entity) or a single entity
-:return: DataQuery
-
 Entities
 .accounts
 .balance_updates

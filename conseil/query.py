@@ -6,27 +6,6 @@ from pprint import pformat
 from conseil.api import ConseilApi, ConseilException
 
 
-def get_class_docstring(class_type):
-    docstring = ''
-    names = filter(lambda x: not x.startswith('_'), dir(class_type))
-
-    for name in names:
-        attr = getattr(class_type, name, None)
-        if type(attr) == property:
-            title = f'.{name}'
-        else:
-            title = f'.{name}()'
-
-        if attr.__doc__:
-            doc = re.sub(r' {3,}', '', attr.__doc__)
-        else:
-            doc = ''
-
-        docstring += f'{title}{doc}\n'
-
-    return docstring
-
-
 class Query:
     __query_path__ = None
 
@@ -86,7 +65,6 @@ class MetadataQuery(Query):
             title = basename(self._query_path).capitalize()
             docstring += f'{title}\n{attr_names}\n'
 
-        docstring += get_class_docstring(self.__class__)
         return docstring
 
     def __call__(self):
