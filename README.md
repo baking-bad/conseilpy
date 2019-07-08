@@ -172,6 +172,16 @@ Here is the list of supported aggregation functions:
 * `min`
 * `max`
 
+If you want to group by some fields but not include them in the result use `group_by` method:
+
+```python
+from conseil import conseil
+
+Block = conseil.tezos.alphanet.blocks
+Block.query(Block.level.count()) \
+	.group_by(Block.baker)
+```
+
 ### Sorting and limiting results
 
 This is similar to Sqlalchemy as well, you can specify one or multiple sort columns with optional descending modifier.
@@ -251,4 +261,29 @@ query = Account.balance.query() \
     .limit(1)
 
 query.scalar()  # will return single numeric value
+```
+
+### Precision
+Conseil allows to specify numeric column precision. In order to use this functionality use `decimal` type. For example:
+
+```python
+from conseil import conseil
+from decimal import Decimal
+
+Account = conseil.tezos.alphanet.accounts
+
+Account.query(Account.balance) \
+    .filter(Account.balance > Decimal('0.1'), 
+            Account.balance < Decimal('0.01'))  # precision will be 2 (max)
+```
+
+### Renaming fields
+You can change names of requested fields in the resulting json/csv:
+
+```python
+from conseil import conseil
+
+Account = conseil.tezos.alphanet.accounts
+
+Account.query(Account.account_id.label('address'))
 ```

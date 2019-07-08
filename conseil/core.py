@@ -131,6 +131,9 @@ class Attribute(MetadataQuery):
     def max(self):
         return self._aggregate('max')
 
+    def label(self, label):
+        return self._spawn(label=label)
+
 
 class Entity(MetadataQuery):
     __child_key__ = 'attribute_id'

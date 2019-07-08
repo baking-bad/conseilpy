@@ -1,9 +1,18 @@
-import re
+import io
+import csv
 from os.path import basename
 from functools import lru_cache
 from pprint import pformat
 
 from conseil.api import ConseilApi, ConseilException
+
+
+def list2csv(data: list):
+    fp = io.StringIO()
+    writer = csv.DictWriter(fp, fieldnames=data[0].keys())
+    writer.writeheader()
+    writer.writerows(data)
+    return fp.getvalue()
 
 
 class Query:
@@ -92,9 +101,10 @@ class DataQuery(Query):
         Resulting Conseil query
         :return: object
         """
-        attributes = self['attributes'] or {}
+        attributes = self['attributes'] or dict()
         having = self['having'] or []
         orders = self['order_by'] or []
+        group_by = self['group_by'] or []
 
         for predicate in having:
             try:
@@ -111,8 +121,14 @@ class DataQuery(Query):
             except (KeyError, TypeError):
                 pass
 
+        fields = list(attributes.keys())
+
+        for attr in group_by:
+            if attr['attribute_id'] not in fields:
+                fields.append(attr['attribute_id'])
+
         return {
-            'fields': list(attributes.keys()),
+            'fields': fields,
             'predicates': list(self['predicates'] or []),
             'aggregation': aggregation,
             'orderBy': orders,
@@ -120,9 +136,43 @@ class DataQuery(Query):
             'output': self['output'] or 'json'
         }
 
+    def field_map(self):
+        """
+        Postprocessing rules: renaming fields, dropping columns
+        :return: object
+        """
+        attributes = self['attributes'] or dict()
+        group_by = self['group_by'] or []
+
+        field_map = {
+            field: attr['label']
+            for field, attr in attributes.items()
+            if attr['label']
+        }
+
+        for field in group_by:
+            field_map[field] = False
+
+        return field_map
+
+    def _postprocess(self, data: list, field_map: dict):
+        def process(item):
+            return {
+                field_map.get(k, k): v
+                for k, v in item.items()
+                if field_map.get(k) is not False
+            }
+
+        return list(map(process, data))
+
     def __repr__(self):
         docstring = super(DataQuery, self).__repr__()
         docstring += f'Query\n{pformat(self.payload())}\n\n'
+
+        postprocess = '\n'.join(map(lambda x: f'{x[0]} -> {x[1]}', self.field_map().items()))
+        if postprocess:
+            docstring += f'Postprocess\n{postprocess}\n\n'
+
         return docstring
 
     def filter(self, *args):
@@ -167,6 +217,14 @@ class DataQuery(Query):
         """
         return self._spawn(limit=limit)
 
+    def group_by(self, *args):
+        """
+        If you want to group by these columns but don't want them to be in the result
+        :param args: attributes
+        :return: DataQuery
+        """
+        return self._spawn(group_by=args)
+
     def having(self, *args):
         """
         Filter results by aggregated column
@@ -181,11 +239,22 @@ class DataQuery(Query):
         :param output: output format (json/csv), default is JSON
         :return: list (json) or string (csv)
         """
-        self._kwargs['output'] = output
+        field_map = self.field_map()
+        self._kwargs['output'] = 'json' if field_map else output
+
         res = self._api.post(path=self._query_path, json=self.payload())
-        if output == 'json':
-            return res.json()
-        return res.text
+        if field_map:
+            data = self._postprocess(res.json(), field_map)
+            if output == 'csv':
+                data = list2csv(data)
+        elif output == 'json':
+            data = res.json()
+        elif output == 'csv':
+            data = res.text
+        else:
+            raise NotImplementedError(output)
+
+        return data
 
     def one(self):
         """
