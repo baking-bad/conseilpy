@@ -1,4 +1,5 @@
 # ConseilPy
+[![PyPI version](https://badge.fury.io/py/conseil.svg?)](https://badge.fury.io/py/conseil)
 [![Build Status](https://travis-ci.org/baking-bad/conseilpy.svg?branch=master)](https://travis-ci.org/baking-bad/conseilpy)
 [![Made With](https://img.shields.io/badge/made%20with-python-blue.svg?)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -20,7 +21,7 @@ ConseilPy is a lot like Sqlalchemy, so if you're familiar with it, you can easil
 ![It's time to cook](https://memegenerator.net/img/instances/48258954.jpg)
 
 ### Quickstart
-
+Get top 5 delegators by balance
 ```python
 from conseil import conseil
 
@@ -32,6 +33,8 @@ Account.query(Account.acccount_id, Account.balance) \
     .limit(5) \
     .all()
 ```
+
+See more [examples](https://github.com/baking-bad/conseilpy/tree/master/examples)
 
 ### Client initialization
 If using a default conseil client is not an option you can instantiate it yourself:
@@ -139,7 +142,8 @@ You can also use `filter_by` for simple queries:
 ```python
 from conseil import conseil
 
-conseil.tezos.alphanet.accounts.query().filter_by(account_id='tzkt')
+conseil.tezos.alphanet.accounts.query() \
+    .filter_by(account_id='tzkt')
 ```
 
 ### Data aggregation
@@ -161,7 +165,7 @@ from conseil import conseil
 
 Block = conseil.tezos.alphanet.blocks
 Block.query(Block.baker, Block.level.count()) \
-	.having(Block.level > 1)  # or Block.level.count(), no difference
+    .having(Block.level > 1)  # or Block.level.count(), no difference
 ```
 
 Here is the list of supported aggregation functions:
@@ -191,8 +195,8 @@ from conseil import conseil
 
 Account = conseil.tezos.alphanet.accounts
 Account.query() \
-	.order_by(Account.balance.desc(), Account.account_id) \
-	.limit(20)
+    .order_by(Account.balance.desc(), Account.account_id) \
+    .limit(20)
 ```
 
 ### Query preview
@@ -204,7 +208,7 @@ from conseil import conseil
 
 Account = conseil.tezos.alphanet.accounts
 query = Account.query() \
-	.order_by(Account.balance.desc()) \
+    .order_by(Account.balance.desc()) \
     .limit(1)
 ```
 
