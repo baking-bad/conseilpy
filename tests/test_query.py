@@ -1,4 +1,7 @@
+from unittest.mock import patch, MagicMock
+
 from conseil.core import *
+from conseil.api import ConseilApi
 from tests.mock_api import ConseilCase
 
 
@@ -34,3 +37,15 @@ class QueryTest(ConseilCase):
 
         query = c.accounts.account_id.query()
         self.assertListEqual(['account_id'], query.payload()['fields'])
+
+    def test_label(self):
+        response = MagicMock()
+        response.json.return_value = [{'account_id': 'tzkt'}]
+
+        api = MagicMock()
+        api.post.return_value = response
+
+        c = Client(api).tezos.alphanet
+
+        res = c.accounts.query(c.accounts.account_id.label('address')).all()
+        self.assertDictEqual({'address': 'tzkt'}, res[0])

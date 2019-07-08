@@ -59,3 +59,10 @@ class AggregationTest(ConseilCase):
         query = c.query(c.accounts.account_id, c.accounts.balance.sum()) \
             .having(c.accounts.manager.in_('a', 'b'))
         self.assertRaises(ConseilException, query.payload)
+
+    def test_group_by(self):
+        c = self.conseil.tezos.alphanet
+
+        query = c.query(c.accounts.balance.avg()) \
+            .group_by(c.accounts.account_id)
+        self.assertListEqual(['balance', 'account_id'], query.payload()['fields'])
