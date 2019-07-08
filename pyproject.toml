@@ -16,7 +16,6 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.6"
 requests = "*"
-csv = "*"
 
 [tool.poetry.dev-dependencies]
 
