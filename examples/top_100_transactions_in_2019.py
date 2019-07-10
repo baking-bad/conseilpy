@@ -5,10 +5,10 @@ from pprint import pprint
 if __name__ == '__main__':
     Operation = conseil.tezos.alphanet.operations
 
-    query = Operation.query(Operation.source, Operation.amount.sum()) \
+    query = Operation.query(Operation.source, Operation.amount.sum(), Operation.fee.avg()) \
         .filter(Operation.kind == Operation.kind.transaction,
                 Operation.timestamp.between(1546300800000, 1577836799000)) \
-        .order_by(Operation.amount.desc()) \
+        .order_by(Operation.amount.sum().desc()) \
         .limit(100)
 
     pprint(query.payload())

@@ -8,7 +8,7 @@ if __name__ == '__main__':
     query = Account.query(Account.manager, Account.account_id.count()) \
         .filter(Account.balance > 0,
                 Account.script.is_(None)) \
-        .order_by(Account.account_id.desc()) \
+        .order_by(Account.account_id.count().desc()) \
         .limit(20)
 
     pprint(query.payload())

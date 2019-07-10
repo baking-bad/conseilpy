@@ -41,12 +41,12 @@ class AggregationTest(ConseilCase):
         c = self.conseil.tezos.alphanet
 
         query = c.query(c.accounts.account_id, c.accounts.balance.sum()) \
-            .having(c.accounts.balance > 1000)
+            .having(c.accounts.balance.sum() > 1000)
         self.assertListEqual([{
             'field': 'balance',
             'function': 'sum',
             'predicate': {
-                'field': 'balance',
+                'field': 'sum_balance',
                 'operation': 'gt',
                 'set': [1000],
                 'inverse': False
@@ -65,4 +65,7 @@ class AggregationTest(ConseilCase):
 
         query = c.query(c.accounts.balance.avg()) \
             .group_by(c.accounts.account_id)
-        self.assertListEqual(['balance', 'account_id'], query.payload()['fields'])
+        self.assertListEqual(['account_id'], query.payload()['fields'])
+
+    def test_multiple_aggregation(self):
+        pass

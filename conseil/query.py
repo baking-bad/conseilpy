@@ -103,7 +103,6 @@ class DataQuery(Query):
         """
         attributes = self['attributes'] or dict()
         having = self['having'] or []
-        orders = self['order_by'] or []
         group_by = self['group_by'] or []
 
         for predicate in having:
@@ -114,26 +113,16 @@ class DataQuery(Query):
 
         aggregation = [x['aggregation'] for x in attributes.values() if x['aggregation']]
 
-        for order in orders:
-            try:
-                function = attributes[order['field']]['aggregation']['function']
-                order['field'] = f'{function}_{order["field"]}'
-            except (KeyError, TypeError):
-                pass
-
-        fields = list(attributes.keys())
-
-        for attr in group_by:
-            if attr['attribute_id'] not in fields:
-                fields.append(attr['attribute_id'])
+        fields = [x['attribute_id'] for x in attributes.values() if not x['aggregation']]
+        fields.extend([x['attribute_id'] for x in group_by if x not in fields])
 
         return {
             'fields': fields,
             'predicates': list(self['predicates'] or []),
             'aggregation': aggregation,
-            'orderBy': orders,
+            'orderBy': list(self['order_by'] or []),
             'limit': self['limit'],
-            'output': self['output'] or 'json'
+            'output': self['output']
         }
 
     def field_map(self):
@@ -287,3 +276,13 @@ class DataQuery(Query):
         if len(res) != 1:
             raise ConseilException('Multiple keys')
         return next(iter(res.values()))
+
+    def vector(self):
+        """
+        Get an array of values for a single column
+        :return: list
+        """
+        res = self.all()
+        if len(res) > 0 and len(res[0].keys()) != 1:
+            raise ConseilException('Multiple keys')
+        return list(map(lambda x: x.values()[0], res))

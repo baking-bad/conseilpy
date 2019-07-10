@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "conseil"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python toolkit for Conseil blockchain indexer"
 license = "MIT"
 authors = ["Michael Zaikin <mz@baking-bad.org>", "aopoltorzhicky <aopoltorzhicky@gmail.com>"]

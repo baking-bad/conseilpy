@@ -154,8 +154,8 @@ This is an important concept to understand. In Conseil you specify which columns
 from conseil import conseil
 
 Block = conseil.tezos.alphanet.blocks
-Block.query(Block.baker, Block.level.count())  
-# will be compiled to SELECT baker, COUNT(level) FROM blocks GROUP BY baker
+Block.query(Block.baker, Block.level.count(), Block.timestamp.max())  
+# will be compiled to SELECT baker, COUNT(level), MAX(timestamp) FROM blocks GROUP BY baker
 ```
 
 Additionally, you can specify `HAVING` predicates if you want to filter results by aggregated column:
@@ -165,7 +165,7 @@ from conseil import conseil
 
 Block = conseil.tezos.alphanet.blocks
 Block.query(Block.baker, Block.level.count()) \
-    .having(Block.level > 1)  # or Block.level.count(), no difference
+    .having(Block.level.count() > 1)  # you have to specify aggregation function here as well
 ```
 
 Here is the list of supported aggregation functions:
@@ -197,6 +197,17 @@ Account = conseil.tezos.alphanet.accounts
 Account.query() \
     .order_by(Account.balance.desc(), Account.account_id) \
     .limit(20)
+```
+
+You can sort by aggregated column too:
+
+```python
+from conseil import conseil
+
+Operation = conseil.tezos.alphanet.operations
+Operation.query(Operation.source, Operation.amount.avg()) \
+    .order_by(Operation.amount.avg().desc()) \
+    .limit(50)
 ```
 
 ### Query preview
@@ -267,6 +278,15 @@ query = Account.balance.query() \
 query.scalar()  # will return single numeric value
 ```
 
+#### Return vector
+
+```python
+query = Operation.query(Operation.timestamp) \
+    .filter_by(source='tzkt')
+    
+query.vector()  # will return flat list of timestamps
+```
+
 ### Precision
 Conseil allows to specify numeric column precision. In order to use this functionality use `decimal` type. For example:
 
@@ -275,7 +295,6 @@ from conseil import conseil
 from decimal import Decimal
 
 Account = conseil.tezos.alphanet.accounts
-
 Account.query(Account.balance) \
     .filter(Account.balance > Decimal('0.1'), 
             Account.balance < Decimal('0.01'))  # precision will be 2 (max)
@@ -288,6 +307,5 @@ You can change names of requested fields in the resulting json/csv:
 from conseil import conseil
 
 Account = conseil.tezos.alphanet.accounts
-
 Account.query(Account.account_id.label('address'))
 ```

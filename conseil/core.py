@@ -48,10 +48,13 @@ class Attribute(MetadataQuery):
         }
 
     def _aggregate(self, function):
-        return self._spawn(aggregation={
-            'field': self['attribute_id'],
-            'function': function
-        })
+        return self._spawn(
+            attribute_id=f'{function}_{self["attribute_id"]}',
+            aggregation={
+                'field': self['attribute_id'],
+                'function': function
+            }
+        )
 
     def in_(self, *args):
         if len(args) == 0:
