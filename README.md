@@ -18,7 +18,7 @@ $ pip install conseil
 
 ConseilPy is a lot like Sqlalchemy, so if you're familiar with it, you can easily cook queries.
 
-![It's time to cook](https://memegenerator.net/img/instances/48258954.jpg)
+![It's time to cook](https://memegenerator.net/img/instances/48258954.jpg?)
 
 ### Quickstart
 Get top 5 delegators by balance
