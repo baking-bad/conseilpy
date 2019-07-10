@@ -9,7 +9,7 @@ if __name__ == '__main__':
         .filter(Operation.kind == Operation.kind.transaction,
                 Operation.destination.startswith('KT1'),
                 Operation.parameters.isnot(None)) \
-        .order_by(Operation.operation_group_hash.desc()) \
+        .order_by(Operation.operation_group_hash.count().desc()) \
         .limit(10)
 
     pprint(query.payload())

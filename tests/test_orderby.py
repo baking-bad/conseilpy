@@ -34,7 +34,7 @@ class AggregationTest(ConseilCase):
         c = self.conseil.tezos.alphanet
 
         query = c.query(c.accounts.account_id, c.accounts.balance.sum()) \
-            .order_by(c.accounts.balance.desc())
+            .order_by(c.accounts.balance.sum().desc())
         self.assertListEqual([{
             'field': 'sum_balance',
             'direction': 'desc'

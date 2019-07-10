@@ -12,7 +12,7 @@ if __name__ == '__main__':
                                    Operation.kind.delegation,
                                    Operation.kind.activation,
                                    Operation.kind.reveal)) \
-        .order_by(Operation.operation_group_hash.desc()) \
+        .order_by(Operation.operation_group_hash.count().desc()) \
         .limit(100)
 
     pprint(query.payload())

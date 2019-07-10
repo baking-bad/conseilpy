@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     query = Account.query(Account.delegate_value, Account.account_id.count()) \
         .filter(Account.delegate_value.isnot(None)) \
-        .order_by(Account.account_id.desc()) \
+        .order_by(Account.account_id.count().desc()) \
         .limit(50)
 
     pprint(query.payload())
