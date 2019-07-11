@@ -1,8 +1,7 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 from conseil.core import *
-from conseil.api import ConseilApi
-from tests.mock_api import ConseilCase
+from tests.mock_api import ConseilCase, MockQuery
 
 
 class QueryTest(ConseilCase):
@@ -49,3 +48,45 @@ class QueryTest(ConseilCase):
 
         res = c.accounts.query(c.accounts.account_id.label('address')).all()
         self.assertDictEqual({'address': 'tzkt'}, res[0])
+
+    def test_one(self):
+        query = MockQuery()
+
+        query.res = [{'a': 1}]
+        self.assertDictEqual({'a': 1}, query.one())
+        self.assertDictEqual({'a': 1}, query.one_or_none())
+
+        query.res = [{'a': 1}, {'a': 2}]
+        self.assertRaises(ConseilException, query.one)
+        self.assertIsNone(query.one_or_none())
+
+        query.res = []
+        self.assertRaises(ConseilException, query.one)
+        self.assertIsNone(query.one_or_none())
+
+    def test_scalar(self):
+        query = MockQuery()
+
+        query.res = [{'a': 1}]
+        self.assertEqual(1, query.scalar())
+
+        query.res = [{'a': 1, 'b': 2}]
+        self.assertRaises(ConseilException, query.scalar)
+
+        query.res = [{'a': 1}, {'a': 2}]
+        self.assertRaises(ConseilException, query.scalar)
+
+        query.res = []
+        self.assertRaises(ConseilException, query.scalar)
+
+    def test_vector(self):
+        query = MockQuery()
+
+        query.res = [{'a': 1}, {'a': 2}]
+        self.assertListEqual([1, 2], query.vector())
+
+        query.res = []
+        self.assertListEqual([], query.vector())
+
+        query.res = [{'a': 1, 'b': 2}, {'a': 2, 'b': 3}]
+        self.assertRaises(ConseilException, query.vector)

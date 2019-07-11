@@ -3,6 +3,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from conseil.core import Client
+from conseil.query import DataQuery
 
 
 class MockResponse(Response):
@@ -12,6 +13,13 @@ class MockResponse(Response):
 
     def text(self):
         return ''
+
+
+class MockQuery(DataQuery):
+    res = []
+
+    def all(self, output='json'):
+        return self.res
 
 
 class ConseilCase(TestCase):

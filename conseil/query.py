@@ -139,8 +139,8 @@ class DataQuery(Query):
             if attr['label']
         }
 
-        for field in group_by:
-            field_map[field] = False
+        for attr in group_by:
+            field_map[attr['attribute_id']] = False
 
         return field_map
 
