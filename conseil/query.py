@@ -139,8 +139,8 @@ class DataQuery(Query):
             if attr['label']
         }
 
-        for field in group_by:
-            field_map[field] = False
+        for attr in group_by:
+            field_map[attr['attribute_id']] = False
 
         return field_map
 
@@ -283,6 +283,11 @@ class DataQuery(Query):
         :return: list
         """
         res = self.all()
-        if len(res) > 0 and len(res[0].keys()) != 1:
-            raise ConseilException('Multiple keys')
-        return list(map(lambda x: x.values()[0], res))
+        if len(res) > 0:
+            if len(res[0]) != 1:
+                raise ConseilException('Multiple keys')
+            key = next(iter(res[0]))
+            vector = list(map(lambda x: x[key], res))
+        else:
+            vector = list()
+        return vector
