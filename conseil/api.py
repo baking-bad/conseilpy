@@ -7,11 +7,7 @@ class ConseilException(Exception):
 
 class ConseilApi:
 
-    def __init__(self,
-                 api_key='bakingbad',
-                 api_host='https://conseil-dev.cryptonomic-infra.tech',
-                 api_version=2,
-                 timeout=15):
+    def __init__(self, api_key, api_host, api_version, timeout=15):
         self._api_key = api_key
         self._api_host = api_host
         self._api_version = api_version
