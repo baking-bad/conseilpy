@@ -100,10 +100,16 @@ class MetadataQuery(Query):
         res = [
             super(MetadataQuery, self).__repr__()
         ]
+
         attr_names = list(map(lambda x: f'.{x}', self._attr_names))
         if attr_names:
             res.append(f'\n{basename(self.path).capitalize()}')
             res.extend(attr_names)
+
+        res.extend([
+            '\nHelpers',
+            get_class_docstring(self.__class__, lambda x: not x.startswith('_') and x != 'path')
+        ])
 
         return '\n'.join(res)
 
