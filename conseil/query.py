@@ -35,8 +35,6 @@ class Query(metaclass=InlineDocstring):
                 )
             else:
                 assert False, api
-        else:
-            assert isinstance(api, ConseilApi)
 
         self.api = api
         self._kwargs = kwargs
@@ -102,12 +100,12 @@ class MetadataQuery(Query):
         res = [
             super(MetadataQuery, self).__repr__()
         ]
-        attr_names = '\n'.join(map(lambda x: f'.{x}', self._attr_names))
+        attr_names = list(map(lambda x: f'.{x}', self._attr_names))
         if attr_names:
             res.append(f'\n{basename(self.path).capitalize()}')
             res.extend(attr_names)
 
-        return '\n'.join(attr_names)
+        return '\n'.join(res)
 
     def __call__(self):
         return self._request()
