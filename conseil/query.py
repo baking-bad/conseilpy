@@ -5,6 +5,7 @@ from functools import lru_cache
 from pprint import pformat
 
 from conseil.api import ConseilApi, ConseilException
+from conseil.docstring import InlineDocstring, get_class_docstring
 
 
 def list2csv(data: list):
@@ -15,12 +16,40 @@ def list2csv(data: list):
     return fp.getvalue()
 
 
-class Query:
-    __query_path__ = None
+class Query(metaclass=InlineDocstring):
+    __query_path__ = ''
 
-    def __init__(self, api=ConseilApi(), **kwargs):
-        self._api = api
+    def __init__(self, api='dev', **kwargs):
+        if isinstance(api, str):
+            if api == 'dev':
+                api = ConseilApi(
+                    api_key='bakingbad',
+                    api_host='https://conseil-dev.cryptonomic-infra.tech',
+                    api_version=2
+                )
+            elif api == 'prod':
+                api = ConseilApi(
+                    api_key='galleon',
+                    api_host='https://conseil-prod.cryptonomic-infra.tech',
+                    api_version=2
+                )
+            else:
+                assert False, api
+
+        self.api = api
         self._kwargs = kwargs
+
+    def __repr__(self):
+        res = [
+            super(Query, self).__repr__(),
+            '\nProperties',
+            f'.path  # {self.path}',
+            f'.api  # {self.api.host} (v{self.api.version})'
+        ]
+        return '\n'.join(res)
+
+    def __getitem__(self, item):
+        return self._kwargs.get(item)
 
     def _extend(self, **kwargs):
         params = self._kwargs.copy()
@@ -33,18 +62,19 @@ class Query:
 
     def _spawn(self, **kwargs):
         params = self._extend(**kwargs)
-        return self.__class__(self._api, **params)
+        return self.__class__(self.api, **params)
 
     @property
-    def _query_path(self):
+    def path(self):
         return self.__query_path__.format(**self._kwargs)
 
-    def __getitem__(self, item):
-        return self._kwargs.get(item)
-
-    def __repr__(self):
-        if self.__query_path__:
-            return f'Path\n{self._query_path}\n\n'
+    def using(self, api):
+        """
+        Clone query with different api connection.
+        :param api: `prod`, `dev`, or `ConseilApi` instance
+        :return: Query
+        """
+        return self.__class__(api, **self._kwargs)
 
 
 class MetadataQuery(Query):
@@ -55,7 +85,7 @@ class MetadataQuery(Query):
     def _request(self):
         try:
             if self.__query_path__:
-                return self._api.get(self._query_path).json()
+                return self.api.get(self.path).json()
         except ConseilException:
             pass
         return list()
@@ -67,14 +97,21 @@ class MetadataQuery(Query):
                           self._request()))
 
     def __repr__(self):
-        docstring = super(MetadataQuery, self).__repr__()
+        res = [
+            super(MetadataQuery, self).__repr__()
+        ]
 
-        attr_names = '\n'.join(map(lambda x: f'.{x}', self._attr_names))
+        attr_names = list(map(lambda x: f'.{x}', self._attr_names))
         if attr_names:
-            title = basename(self._query_path).capitalize()
-            docstring += f'{title}\n{attr_names}\n'
+            res.append(f'\n{basename(self.path).capitalize()}')
+            res.extend(attr_names)
 
-        return docstring
+        res.extend([
+            '\nHelpers',
+            get_class_docstring(self.__class__, lambda x: not x.startswith('_') and x != 'path')
+        ])
+
+        return '\n'.join(res)
 
     def __call__(self):
         return self._request()
@@ -89,7 +126,7 @@ class MetadataQuery(Query):
                 self.__child_key__: item,
                 **self._kwargs
             }
-            return self.__child_class__(self._api, **kwargs)
+            return self.__child_class__(self.api, **kwargs)
         raise ConseilException(item)
 
 
@@ -155,14 +192,22 @@ class DataQuery(Query):
         return list(map(process, data))
 
     def __repr__(self):
-        docstring = super(DataQuery, self).__repr__()
-        docstring += f'Query\n{pformat(self.payload())}\n\n'
+        res = [
+            super(DataQuery, self).__repr__(),
+            '\nQuery',
+            pformat(self.payload())
+        ]
 
         postprocess = '\n'.join(map(lambda x: f'{x[0]} -> {x[1]}', self.field_map().items()))
         if postprocess:
-            docstring += f'Postprocess\n{postprocess}\n\n'
+            res.append(f'\nPostprocess\n{postprocess}')
 
-        return docstring
+        res.extend([
+            '\nHelpers',
+            get_class_docstring(self.__class__, lambda x: not x.startswith('_') and x != 'path')
+        ])
+
+        return '\n'.join(res)
 
     def filter(self, *args):
         """
@@ -231,7 +276,7 @@ class DataQuery(Query):
         field_map = self.field_map()
         self._kwargs['output'] = 'json' if field_map else output
 
-        res = self._api.post(path=self._query_path, json=self.payload())
+        res = self.api.post(path=self.path, json=self.payload())
         if field_map:
             data = self._postprocess(res.json(), field_map)
             if output == 'csv':

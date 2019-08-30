@@ -1,3 +1,3 @@
-from conseil.core import Client
+from conseil.core import ConseilClient
 
-conseil = Client()
+conseil = ConseilClient()

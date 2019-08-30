@@ -7,7 +7,7 @@ class MetadataTest(ConseilCase):
     def test_metadata_platforms(self):
         self.conseil()
         self.assertLastGetPathEquals('metadata/platforms')
-        self.assertTrue(isinstance(self.conseil, Client))
+        self.assertTrue(isinstance(self.conseil, ConseilClient))
 
     def test_metadata_networks(self):
         self.conseil.tezos()
