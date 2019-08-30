@@ -2,7 +2,7 @@ from requests import Response
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from conseil.core import Client
+from conseil.core import ConseilClient
 from conseil.query import DataQuery
 
 
@@ -28,7 +28,7 @@ class ConseilCase(TestCase):
         self.api = MagicMock()
         self.api.get.return_value = MockResponse()
         self.api.post.return_value = MockResponse()
-        self.conseil = Client(self.api)
+        self.conseil = ConseilClient(self.api)
 
     def assertLastGetPathEquals(self, path):
         self.assertEqual(path, self.api.get.call_args_list[-1][0][0])

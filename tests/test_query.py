@@ -44,7 +44,7 @@ class QueryTest(ConseilCase):
         api = MagicMock()
         api.post.return_value = response
 
-        c = Client(api).tezos.alphanet
+        c = ConseilClient(api).tezos.alphanet
 
         res = c.accounts.query(c.accounts.account_id.label('address')).all()
         self.assertDictEqual({'address': 'tzkt'}, res[0])

@@ -25,7 +25,7 @@ class Attribute(MetadataQuery):
         :return: DataQuery
         """
         kwargs = self._extend(attributes={self['attribute_id']: self})
-        return DataQuery(self._api, **kwargs)
+        return DataQuery(self.api, **kwargs)
 
     def _predicate(self, operation, *args, inverse=False):
         predicate = {
@@ -158,7 +158,7 @@ class Entity(MetadataQuery):
         else:
             raise ConseilException('List of attributes (single entity) or an entity is allowed')
         kwargs = self._extend(attributes=attributes)
-        return DataQuery(self._api, **kwargs)
+        return DataQuery(self.api, **kwargs)
 
 
 class Network(MetadataQuery):
@@ -185,7 +185,7 @@ class Network(MetadataQuery):
             attributes=attributes,
             entity_id=args[0]['entity_id']
         )
-        return DataQuery(self._api, **kwargs)
+        return DataQuery(self.api, **kwargs)
 
 
 class Platform(MetadataQuery):
@@ -194,7 +194,7 @@ class Platform(MetadataQuery):
     __query_path__ = 'metadata/{platform_id}/networks'
 
 
-class Client(MetadataQuery):
+class ConseilClient(MetadataQuery):
     __child_key__ = 'platform_id'
     __child_class__ = Platform
     __query_path__ = 'metadata/platforms'
