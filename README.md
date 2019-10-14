@@ -26,7 +26,7 @@ Get top 5 delegators by balance
 from conseil import conseil
 
 Account = conseil.tezos.alphanet.accounts
-Account.query(Account.acccount_id, Account.balance) \
+Account.query(Account.account_id, Account.balance) \
     .filter(Account.script.is_(None), 
             Account.account_id.startswith('KT1')) \
     .order_by(Account.balance.desc()) \
