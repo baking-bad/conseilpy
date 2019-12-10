@@ -49,6 +49,12 @@ conseil = Client(ConseilApi(
 ))
 ```
 
+If you just want to try Conseil, you can use defaults:
+```python
+from conseil import conseil  # this is a working Client instance
+conseil = conseil.using('prod')  # switch to mainnet
+```
+
 ### Exploring database schema
 Conseil metadata has the following tree structure:  
 platform / network / entity / attribute / value
@@ -136,6 +142,16 @@ Here is a full list of supported operations:
 | startsWith        | `x.startswith(a)`  | `not_(x.startsWith(a))` |
 | endsWith          | `x.endswith(a)`    | `not_(x.endswith(a))`   |
 | isnull            | `x.is_(None)`      | `x.isnot(None)`         |
+
+Also there are several additional helpers:
+* `not_` inverts the predicate
+* `and_` just an alias for list of predicates, write `and_(pred1, pred2)` instead of `[pred1, pred2]`
+* `or_` can be used on the top level only, assigns groups to the predicates (or list of predicates):
+```python
+from conseil import or_, and_
+
+or_(pred1, and_(pred2, pred3), pred4)
+```
 
 You can also use `filter_by` for simple queries:
 

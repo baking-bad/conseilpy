@@ -215,7 +215,11 @@ class DataQuery(Query):
         :param args: array of predicates
         :return: DataQuery
         """
-        return self._spawn(predicates=args)
+        if len(args) == 1 and isinstance(args[0], list):
+            predicates = args[0]
+        else:
+            predicates = args
+        return self._spawn(predicates=predicates)
 
     def filter_by(self, **kwargs):
         """

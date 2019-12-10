@@ -15,6 +15,33 @@ def not_(predicate: dict):
     return res
 
 
+def and_(*predicates) -> list:
+    return list(predicates)
+
+
+def or_(*predicates) -> list:
+    """
+    Returns flat list of predicates divided by groups (OR)
+    :param predicates: list of predicates or list of predicates is accepted
+    :return: list
+    """
+    res = list()
+
+    for i, item in enumerate(list(predicates)):
+        if isinstance(item, dict):
+            assert 'group' not in item, predicates
+            res.append({'group': f'g{i}', **item})
+        elif isinstance(item, list):
+            for sub_item in item:
+                assert isinstance(sub_item, dict), predicates
+                assert 'group' not in sub_item, predicates
+                res.append({'group': f'g{i}', **sub_item})
+        else:
+            assert False, predicates
+
+    return res
+
+
 class Attribute(MetadataQuery):
     __query_path__ = 'metadata/{platform_id}/{network_id}/{entity_id}/{attribute_id}'
 
