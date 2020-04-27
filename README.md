@@ -86,7 +86,7 @@ Entities
 .rolls
 ```
 
-Alternatively you can check full [SQL schema](https://github.com/Cryptonomic/Conseil/blob/master/doc/conseil.sql)
+Alternatively you can check full [SQL schema](https://github.com/Cryptonomic/Conseil/blob/2020-march-release-21/sql/conseil.sql)
 
 ### Selecting fields
 Conseil doesn't support joins at the moment so you can request attributes for a single entity only. 
